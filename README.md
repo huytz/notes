@@ -135,7 +135,7 @@ https://prometheus.io/docs/operating/integrations/#remote-endpoints-and-storage
 Có rất nhều tools support làm remote storage cho Prometheus,mình chọn `VictoriaMetrics` chứ không phải những thứ fancy như Thanos, M3DB, Cortex... hoặc InfluxDB (con nhà giàu).
 
 
-## Lý do chọn VictoriaMetrics:
+### Lý do chọn VictoriaMetrics:
 
 -  Ít component, architect dễ tiếp cận, concept đơn giản.
 
@@ -153,3 +153,17 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 
 (...#2)
+
+## Check mình đang chạy cả thảy bao nhiêu VMs trên GCP
+
+- requirements: prometheus instance `prometheus.xxxx.xxxx` đã config Service Discovery(SD) GCP. (https://prometheus.io/docs/prometheus/latest/configuration/configuration/#gce_sd_config)
+
+  -> Nếu bạn đang chạy on-premise thì có thể dùng trick này để làm SD: `https://github.com/linuxvn/about/blob/master/Notes-2019.md#nmap-for-prometheus`
+
+- purpose: xem đã gần đạt threshold của CloudNAT Reserve source address and source port tuples for the VM.
+
+- threshold hiện tại của CloudNAT (theo lý thuyết): xxx VMs
+
+- current running VMs: (?) VMs
+
+- command check: `curl -sSL http://prometheus.xxxx.xxxx/api/v1/query\?query\=count\(up\=\=1\) | jq '.data.result[0].value[1]'`
