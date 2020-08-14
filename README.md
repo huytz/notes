@@ -166,5 +166,5 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - current running VMs: (?) VMs
 
-- command check: 
-`curl -sSL http://prometheus.xxxx.xxxx/api/v1/query\?query\=count\(up\=\=1\) | jq '.data.result[0].value[1]'`
+- command check:
+  - `curl -sSL http://prometheus.xxxx.xxxx/api/v1/query\?query\=count\(up\=\=1\) | jq '.data.result[0].value[1]'`
