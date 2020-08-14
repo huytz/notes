@@ -98,7 +98,7 @@ Vậy là các service được deploy lên k8s cluster sẽ được prometheus
 
 ref: `https://github.com/prometheus/prometheus`
 
-## VictoriaMetrics 1
+## VictoriaMetrics #1
 
 ### https://victoriametrics.github.io/
 
