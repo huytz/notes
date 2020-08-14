@@ -154,7 +154,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 (...#2)
 
-## Check mình đang chạy cả thảy bao nhiêu VMs trên GCP
+## Check số lượng VMs trên GCP
 
 - requirements: prometheus instance `prometheus.xxxx.xxxx` đã config Service Discovery(SD) GCP. (https://prometheus.io/docs/prometheus/latest/configuration/configuration/#gce_sd_config)
 
