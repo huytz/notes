@@ -100,13 +100,13 @@ ref: `https://github.com/prometheus/prometheus`
 
 ## VictoriaMetrics #1
 
-### https://victoriametrics.github.io/
+#### https://victoriametrics.github.io/
 
-### Tại sao phải cần một remote storage cho prometheus ?
+#### Tại sao phải cần một remote storage cho prometheus ?
 
 Trong quá trình làm việc với prometheus thì một số team cần lưu metrics trong 1 - 2 tháng hoặc lâu hơn.
 
-### 1. Cách đầu tiên mình nghĩ là chỉ cần set retention lên 2 tháng là được.
+#### 1. Cách đầu tiên mình nghĩ là chỉ cần set retention lên 2 tháng là được.
 
 Giả sử instance prometheus đang chạy có `875475` TSDB với retention là 5 ngày, cost 1x GB RAM. Thì việc nâng retention lên 2 tháng là gần như không thể vì sẽ cần 1 instance siêu to khổng lồ.
 
@@ -122,20 +122,20 @@ Postings (unique label pairs): 38425
 Postings entries (total label pairs): 11072071
 ```
 
-### 2. Feredate metrics cần lưu về một instance prometheus khác.
+#### 2. Feredate metrics cần lưu về một instance prometheus khác.
 
 Đây cũng chỉ là một gỉai pháp tình thế, không khá hơn #1 là bao nhiêu.
 
 Vì bạn sẽ phải scale dọc, đắp RAM và CPU vào chỉ để đảm bảo prometheus không bị OOM nữa.
 
-### 3. Giải pháp là remote write metrics vào một storage khác có khả năng HA và scale ngang được.
+#### 3. Giải pháp là remote write metrics vào một storage khác có khả năng HA và scale ngang được.
 
 https://prometheus.io/docs/operating/integrations/#remote-endpoints-and-storage
 
 Có rất nhều tools support làm remote storage cho Prometheus,mình chọn `VictoriaMetrics` chứ không phải những thứ fancy như Thanos, M3DB, Cortex... hoặc InfluxDB (con nhà giàu).
 
 
-### Lý do chọn VictoriaMetrics:
+#### Lý do chọn VictoriaMetrics:
 
 -  Ít component, architect dễ tiếp cận, concept đơn giản.
 
@@ -158,7 +158,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - requirements: prometheus instance `prometheus.xxxx.xxxx` đã config Service Discovery(SD) GCP. (https://prometheus.io/docs/prometheus/latest/configuration/configuration/#gce_sd_config)
 
-  -> Nếu bạn đang chạy on-premise thì có thể dùng trick này để làm SD: `https://github.com/linuxvn/about/blob/master/Notes-2019.md#nmap-for-prometheus`
+  -> Nếu bạn đang chạy on-premise thì có thể dùng trick này để làm SD:  `https://github.com/linuxvn/about/blob/master/Notes-2019.md#nmap-for-prometheus`
 
 - purpose: xem đã gần đạt threshold của CloudNAT Reserve source address and source port tuples for the VM.
 
@@ -166,4 +166,5 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - current running VMs: (?) VMs
 
-- command check: `curl -sSL http://prometheus.xxxx.xxxx/api/v1/query\?query\=count\(up\=\=1\) | jq '.data.result[0].value[1]'`
+- command check: 
+`curl -sSL http://prometheus.xxxx.xxxx/api/v1/query\?query\=count\(up\=\=1\) | jq '.data.result[0].value[1]'`
