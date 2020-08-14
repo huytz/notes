@@ -92,7 +92,7 @@ spec:
   ...
 ```
 
-    Vậy là các service được deploy lên k8s cluster sẽ được prometheus tự cào metrics về bằng job `kubernetes-pods`.
+Vậy là các service được deploy lên k8s cluster sẽ được prometheus tự cào metrics về bằng job `kubernetes-pods`.
 
 #### Flow của pod discovery cũng khá dễ hiểu, sẽ có một đọan code connect tới Kube-API server, sau đó watch các pods mới được tạo ra từ Kube-API và check annontation của Pod rồi update config cuả Prometheus.
 
@@ -104,11 +104,13 @@ ref: `https://github.com/prometheus/prometheus`
 
 ### Tại sao phải cần một remote storage cho prometheus ?
 
-Trong quá trình làm việc với prometheus thì một số team cần lưu metrics trong 1 - 2 tháng.
+Trong quá trình làm việc với prometheus thì một số team cần lưu metrics trong 1 - 2 tháng hoặc lâu hơn.
 
 ### 1. Cách đầu tiên mình nghĩ là chỉ cần set retention lên 2 tháng là được.
 
-Giả sử instance prometheus đang chạy có `875475` Series với retention là 5 ngày, cost 1x GB RAM. Thì việc nâng retention lên 2 tháng là gần như không thể. (lí do là quá trình GC và load metrics của prometheus sẽ làm node chết liên tọi do hết RAM.)
+Giả sử instance prometheus đang chạy có `875475` TSDB với retention là 5 ngày, cost 1x GB RAM. Thì việc nâng retention lên 2 tháng là gần như không thể vì sẽ cần 1 instance siêu to khổng lồ.
+
+Chưa kể quá trình trình GC và load metrics của prometheus sẽ làm node tốn kha khá resource lúc query long range -> OOM killed.
 
 ```
 / $ ./prometheus/prometheus-2.13.0.linux-amd64/tsdb analyze prometheus/
@@ -130,7 +132,7 @@ Vì bạn sẽ phải scale dọc, đắp RAM và CPU vào chỉ để đảm b�
 
 https://prometheus.io/docs/operating/integrations/#remote-endpoints-and-storage
 
-Có rất nhều tools support làm remote storate cho Prometheus, `VictoriaMetrics` chứ không phải những thứ fancy như Thanos, M3DB, Cortex... hoặc InfluxDB (con nhà giàu).
+Có rất nhều tools support làm remote storage cho Prometheus,mình chọn `VictoriaMetrics` chứ không phải những thứ fancy như Thanos, M3DB, Cortex... hoặc InfluxDB (con nhà giàu).
 
 
 ## Lý do chọn VictoriaMetrics:
@@ -141,11 +143,11 @@ Có rất nhều tools support làm remote storate cho Prometheus, `VictoriaMetr
 
 -  Setup nhanh trên K8s với Helm Chart: https://git.tiki.services/infras/victoriametrics
 
-- Prometheus cần ít RAM vì Retention và query đều ở VictoriaMetrics, Prometheus chỉ cào và gửi metrics đi.
+-  Prometheus cần ít RAM vì Retention và query đều ở VictoriaMetrics, Prometheus chỉ cào và gửi metrics đi.
 
-- Metrics retention 1 tháng hoặc có thể hơn.
+-  Metrics retention 1 tháng hoặc có thể hơn.
 
-- Query performance, low cost so với các tool khác : Thanos, M3DB, Cortex...
+-  Query performance, low cost so với các tool khác : Thanos, M3DB, Cortex...
 
 Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
