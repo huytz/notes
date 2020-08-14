@@ -141,7 +141,7 @@ Có rất nhều tools support làm remote storage cho Prometheus,mình chọn `
 
 -  Có 2 mode là cluster và single.
 
--  Setup nhanh trên K8s với Helm Chart: https://git.tiki.services/infras/victoriametrics
+-  Setup nhanh trên K8s với Helm Chart.
 
 -  Prometheus cần ít RAM vì Retention và query đều ở VictoriaMetrics, Prometheus chỉ cào và gửi metrics đi.
 
