@@ -168,3 +168,11 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - command check:
   - `curl -sSL http://prometheus.xxxx.xxxx/api/v1/query\?query\=count\(up\=\=1\) | jq '.data.result[0].value[1]'`
+
+## Script thêm device VPN p2p cho Wireguard.
+
+- Cần 1 folder `device-template` tại thư mục `/etc/wireguard/clients/`
+
+- Script input : Tên thiết bị + IP sẽ cấp cho thiết bị.
+
+- Script output: QRcode để điện thoại có thể scan.
