@@ -180,4 +180,6 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - Script input : Tên thiết bị + IP sẽ cấp cho thiết bị.
 
-- Script output: QRcode để điện thoại có thể scan bằng camera.
+- Script output:
+ + QRcode để điện thoại có thể scan bằng camera.
+ + Config device mới được lưu tại `/etc/wireguard/clients/$device`.
