@@ -68,8 +68,6 @@ addDeviceWithIP(){
   private=$(cat /etc/wireguard/clients/"$device_name"/private)
   public=$(cat /etc/wireguard/clients/"$device_name"/public)
 
-  echo $private
-
   local _template="/etc/wireguard/clients/$device_name/mobile.conf"
 
   sed -i "s/IP_TEMPLATE/$ip/g" $_template
@@ -80,7 +78,8 @@ addDeviceWithIP(){
   
   # stop & start wireguard
   /usr/bin/systemctl stop wg-quick@wg0
-
+  
+  echo -e '\n' >> /etc/wireguard/wg0.conf
   echo "[Peer]" >> /etc/wireguard/wg0.conf
   echo "PublicKey = $public" >> /etc/wireguard/wg0.conf
   echo "AllowedIPs = $ip" >> /etc/wireguard/wg0.conf
@@ -95,7 +94,6 @@ addDeviceWithIP(){
   echo "::."
   echo "::."
   echo "::End..."
-  
 }
 
 

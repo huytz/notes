@@ -173,6 +173,11 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - Cần 1 folder `device-template` tại thư mục `/etc/wireguard/clients/`
 
+- Yêu cầu package trước khi chạy script:
+  + Chạy với quyền root.
+  + `wireguard`.
+  + `qrencode` để generate QR code.
+
 - Script input : Tên thiết bị + IP sẽ cấp cho thiết bị.
 
-- Script output: QRcode để điện thoại có thể scan.
+- Script output: QRcode để điện thoại có thể scan bằng camera.
