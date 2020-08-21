@@ -7,17 +7,17 @@ Technical notes
 
 Instance prometheus chạy trong k8s sẽ dùng Pod SD để discover các pods và node.
 
-ref: `https://prometheus.io/docs`
+ref: `https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config`
 
 Thực ra thì các instance prometheus chạy ngoài k8s vẫn discover được nhưng theo mình thì không nên làm vậy, vì nó sẽ bị phụ thuộc vào network từ prometheus -> k8s API.
 
 #### Để prometheus có để discover được Pods :
 
-##### Instance prometheus.
-- Nếu instance đó không chạy trong k8s -> cần set thông tin về API-Server và cách để prometheus authen với k8s.
-- Nếu instance đã chạy trong k8s (recommand) thì bạn không cần làm gì cả, vì nó dùng Service Account của Pods để authen với API-Server.
+##### Instance prometheus:
+  - Nếu instance đó không chạy trong k8s -> cần set thông tin về API-Server và cách để prometheus authen với k8s (basic authen/tls).
+  - Nếu instance đã chạy trong k8s (recommand) thì bạn không cần làm gì cả, vì nó dùng Service Account của Pods để authen với API-Server.
 
-##### Thêm job sau vào promtheus config 
+##### Thêm job sau vào prometheus config 
     
     - job_name: kubernetes-pods
       honor_timestamps: true
@@ -96,7 +96,7 @@ Vậy là các service được deploy lên k8s cluster sẽ được prometheus
 
 #### Flow của pod discovery cũng khá dễ hiểu, sẽ có một đọan code connect tới Kube-API server, sau đó watch các pods mới được tạo ra từ Kube-API và check annontation của Pod rồi update config cuả Prometheus.
 
-ref: `https://github.com/prometheus/prometheus`
+ref: `https://github.com/prometheus/prometheus/tree/master/discovery/kubernetes`
 
 ## VictoriaMetrics #1
 
@@ -116,7 +116,7 @@ Chưa kể quá trình trình GC và load metrics của prometheus sẽ làm nod
 / $ ./prometheus/prometheus-2.13.0.linux-amd64/tsdb analyze prometheus/
 Block ID: 01EAH2V9DMGK96ZNX6GS4T9DK7
 Duration: 2h0m0s
-Series: 875475
+`Series: 875475`
 Label names: 354
 Postings (unique label pairs): 38425
 Postings entries (total label pairs): 11072071
@@ -160,7 +160,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
   -> Nếu bạn đang chạy on-premise thì có thể dùng trick này để làm SD:  `https://github.com/linuxvn/about/blob/master/Notes-2019.md#nmap-for-prometheus`
 
-- purpose: xem đã gần đạt threshold của CloudNAT Reserve source address and source port tuples for the VM.
+- purpose: xem đã gần đạt threshold của CloudNAT.
 
 - threshold hiện tại của CloudNAT (theo lý thuyết): xxx VMs
 
