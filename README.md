@@ -171,9 +171,8 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 ## Script thêm device VPN p2p cho Wireguard.
 
-- Cần 1 folder `device-template` tại thư mục `/etc/wireguard/clients/`
-
 - Yêu cầu package trước khi chạy script:
+  + Cần 1 folder `device-template` tại thư mục `/etc/wireguard/clients/`
   + Chạy với quyền root.
   + `wireguard`.
   + `qrencode` để generate QR code.
