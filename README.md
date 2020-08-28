@@ -182,4 +182,5 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 - Script output:
   + QRcode để điện thoại có thể scan bằng camera.
   + Config device mới được lưu tại `/etc/wireguard/clients/${device}`.
+
   
