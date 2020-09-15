@@ -183,4 +183,4 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
   + QRcode để điện thoại có thể scan bằng camera.
   + Config device mới được lưu tại `/etc/wireguard/clients/${device}`.
 
-  
+- Ref: https://github.com/huytz/notes/tree/master/script/wireguad-add-device
