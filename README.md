@@ -1,6 +1,27 @@
 # notes
 Technical notes
 
+
+# Table of contents
+
+* [Prometheus và k8s](#prometheus-và-k8s)
+  
+* [victoriametrics 1](#victoriametrics-1)
+
+* [check số lượng vms trên gcp](#check-số-lượng-vms-trên-gcp)
+
+* [script thêm device vpn p2p cho wireguard](#script-thêm-device-vpn-p2p-cho-wireguard)
+  
+* notes 15.10.2020
+  * [jenkins](#jenkins)
+  * [yaml](#yaml)
+  * [daemon (pronounced dee-mon)](#daemon-pronounced-dee-mon)
+  * [cgroups](#cgroups)
+  * [Linh tinh](#linh-tinh)
+
+* notes 01.12.2020
+  * [jenkins-active-choices](#jenkins-active-choices)
+
 ## Prometheus và k8s
 
 #### Với mình lý do chính dùng prometheus là để tận dụng Service Discovery(SD) của nó.
@@ -184,3 +205,106 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
   + Config device mới được lưu tại `/etc/wireguard/clients/${device}`.
 
 - Ref: https://github.com/huytz/notes/tree/master/script/wireguad-add-device
+
+## notes 15.10.2020
+
+### Jenkins
+- Làm việc với Jenkins ( groovy + scripted pipeline ) mới thấy được nó có thể làm mọi thứ trong DevOps.
+
+  + Continuous Integration.
+  + Continuous Delivery
+  + Cron job.
+  + Load test.
+  + ...còn nhiều thứ mà mình chưa làm tới nào làm tới sẽ bổ sung
+
+- Điểm mạnh của Jenkins là bạn có thể làm mọi thứ bạn muốn, dù bạn có để source của bạn ở đâu và mình cũng hạn chế dùng build-in CI của gitab,github,bitbucket... vì nếu bạn dùng mỗi service một loại hoặc mai mốt công ty bạn buồn buồn lại chuyển git repo, thì bạn lại phải setup CI/CD lại từ đầu, Jenkins (hoặc cái các tool 3rd) có thể giải quyết được vấn đề này, tất cả những gì bạn cần phải làm chỉ là add repo mới vào Jenkins. 
+
+- Nhiều cty hiện nay vẫn dùng jenkins và dev groovy để exetend Jenkins và cung cấp PaaS , ví dụ như thằng này https://www.cloudbees.com/
+
+
+### Yaml 
+- Yaml là cách phổ biến để tương tác với k8s, nên các tool sinh ra cũng khá nhiều, nhưng cuối cùng thì output của bạn cũng chỉ là yaml và apply bằng `kubectl`.
+
+  + Cách đơn giản nhất vẫn là (yaml) -> kubectl apply -f -> k8s.
+
+  + Dùng kustomize patch yaml: (yaml) -> kustomize -> patch yaml -> k8s.
+
+  + Cách "phúc" tạp : (yaml) + template -> helm -> go render template -> yaml -> k8s.
+
+- Cách nào thì output cũng như nhau, cái mình quan tâm là việc operation đơn giản và lúc có lỗi thì debug nhanh, nên mình vẫn dùng kustomize.
+
+### Daemon (pronounced dee-mon)
+- Vô tình đọc được bài này khá hay nói về daemon trong unix, đọc xong có thể hiểu được một số cái basic:
+
+  + Daemon vs Service trong unix.
+
+  + Tại sao lại dùng 2 `fork()` lúc tạo ra một daemon.
+
+- link: https://digitalbunker.dev/2020/09/03/understanding-daemons-unix/
+
+
+### Cgroups 
+
+- Một series về cgroups có 4 phần, giới thiệu về cgroups và cách implement nó vào OS.
+
+- Làm việc nhiều với unix và k8s thì mình nghĩ series này là rất hữu ích, bạn sẽ hiểu được flow từ `k8s yaml -> container` khi bạn resquest/limit Memory, CPU cho một Deployment.
+
+- link part one: https://www.redhat.com/sysadmin/cgroups-part-one
+
+### Linh tinh
+
+- Nhân tiện Apple mới ra Iphone 12, các forums lại được dịp tranh cãi IOS vs Android, về công nghệ, giá cả bla bla... nhưng mình vẫn thích ai dùng hàng nấy thôi đừng nên dạy người khác cách tiêu tiền, tranh cãi mấy thứ đó trên mạng quá vô bổ.
+
+- Lại nhớ cái clip khá hay của Steve Jobs lúc còn trẻ nói về thất bại của Xerox, đại khái là: 
+
+  + Những người làm sản phẩm , gọi nôm na là "product people" giúp công ty tạo ra một sản phẩm tốt và hiểu rõ nhu cầu của người dùng, biết người dùng cần gì, luôn mang đến người dùng những thứ họ cần.
+
+  + Khi công ty đã độc chiếm thị trường và không có đối thủ, thì những "product people" này thường không mang lại lợi ích nhiều cho công ty nữa, thay vào đó là những Sales, Marketing people.
+
+  + Với Pepsico thì có thể là ổn, nhưng đối với những công ty công nghệ thì sao ? 
+
+  + Tại sao chúng ta phải tạo ra một cái máy in tốt hơn khi mà chúng ta đã độc chiếm thị trường.
+
+  + Các Sales, Marketing mang lại lợi nhuận lớn và dần lên nắm quyền điều hành (người sẽ không phân biệt được một good/bad product , không hiểu được ngừoi dùng cần gì mà chỉ quan tâm đến việc bán được thật nhiều sản phẩm ), các cổ đông lại thích điều đó.
+
+  + "Product people" không còn được quyết định nhiều đến sản phẩm họ làm ra sẽ như thế nào nữa.
+
+- link: https://www.youtube.com/watch?v=X3NASGb5m8s
+
+
+### Jenkins-active-choices
+
+  - Làm việc với Jenkins job yêu cầu truyền vào một params và phải dynamic thì plugin `Active Choices` cho phép bạn load một đoạn script để render các lựa chọn. 
+  ( https://plugins.jenkins.io/uno-choice/ )
+
+  - Use case: Một jenkins job truyền vào params là một directory và 1 file zip bất kì trong directory đó, lưu ý directory/zip file có thể thay đổi liên tục.
+
+  - Phần `Active choices params` cho phép load một đoạn script (groovy) và return một list các lựa chọn, vì vậy ở đây có thể list các file và return nó về một list. 
+
+  - Thêm nữa vì lúc thực thi script mặc định chạy trên master node nên mình phải thêm đoạn `ssh xxx` để list được các file trên agent node. ( build của mình schedule trên agent node chứ không phải master node ).
+  
+  - Example: 
+    ```
+    // Function create a list from String
+    def makeList(list) {
+      List created = new ArrayList()
+      list.eachLine { line ->
+          created.add(line)
+      }
+      return created
+    }
+
+    // commandline list directory
+    def cmd = "ssh agent-node ls /data/"
+
+    // excute commnand
+    def list = cmd.execute()
+
+    // convert String to list
+    def res = makeList(list.getText())
+
+    return  res
+    ```
+
+  - Plugin này có thể load mọi thứ bằng groovy - khá đơn giản nhưng mà hiệu quả.
+  - Bạn cũng có thể đưa nó vào `groovy shared lib` cho gọn hơn.
