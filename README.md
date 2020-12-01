@@ -19,6 +19,9 @@ Technical notes
   * [cgroups](#cgroups)
   * [Linh tinh](#linh-tinh)
 
+* note 10.11.20202
+  * [jenkins-pipeline](#jenkins-pipeline)
+
 * notes 01.12.2020
   * [jenkins-active-choices](#jenkins-active-choices)
 
@@ -272,6 +275,25 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 - link: https://www.youtube.com/watch?v=X3NASGb5m8s
 
 
+### jenkins-pipeline
+
+  - Giống như hầu hết các tool CI, Jenkins cũng có "pipeline as code" định nghĩa trong Jenkinsfile.
+
+  - Pipeline chia làm 2 loại cơ bản là `Scripted Pipeline` và `Declarative pipeline`, đều là DSL(domain specific language) nhưng khác biệt nhau về syntax cũng như cách implement, vậy tại sao lại phải chia ra làm 2 loại ?
+  
+    + Từ khi Jenkins ra đời thì groovy là ngôn ngữ chính để custom các job, stage theo ý của user -> Scripted Pipeline, bạn có thể viết hầu hết các function bằng groovy (programing style) và share chúng với Jenkins như một 3rd party code để Jenkins lấy ra và sử dụng.
+
+    + Nhưng không phải ai cũng thích groovy và có thời gian để học hoặc ngồi viết lại các function nên mới sinh ra một "interface" đơn giản hơn để sử dụng groovy là `Declarative pipeline` ,các function đã có sẵn và bạn chỉ cần dùng nó. Các function này đi cùng với plugin, ví dụ cài đặt `Git` plugin thì bạn có thể dùng các function của Git (Checkout()...).
+
+    + Điểm khác nhau giữa hai loại pipeline có thể tham khảo ở đây: https://www.jenkins.io/doc/book/pipeline/
+
+- Tôi muốn implement Pipe line as code thì nên dùng loại nào ? 
+
+  Ý kiến cá nhân:
+    
+    +  Nên dùng cả 2 .
+    +  `Declarative pipeline` khai báo các stage để tận dụng function có sẵn, pipeline syntax dễ hiểu và dùng block "script{}" để load `Scripted Pipeline` khi cần chạy các function phức tạp ( từ Shared libraries https://www.jenkins.io/doc/book/pipeline/shared-libraries/#defining-shared-libraries ).
+
 ### Jenkins-active-choices
 
   - Làm việc với Jenkins job yêu cầu truyền vào một params và phải dynamic thì plugin `Active Choices` cho phép bạn load một đoạn script để render các lựa chọn. 
@@ -281,7 +303,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
   - Phần `Active choices params` cho phép load một đoạn script (groovy) và return một list các lựa chọn, vì vậy ở đây có thể list các file và return nó về một list. 
 
-  - Thêm nữa vì lúc thực thi script mặc định chạy trên master node nên mình phải thêm đoạn `ssh xxx` để list được các file trên agent node. ( build của mình schedule trên agent node chứ không phải master node ).
+  - Thêm nữa lúc thực thi script mặc định chạy trên master node nên mình phải thêm đoạn `ssh xxx` để list được các file trên agent node. ( build của mình schedule trên agent node chứ không phải master node ).
   
   - Example: 
     ```
