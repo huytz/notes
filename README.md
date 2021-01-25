@@ -292,8 +292,8 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
   Ý kiến cá nhân:
     
     +  Nên dùng cả 2 .
-    +  `Declarative pipeline` khai báo các stage để tận dụng function có sẵn, pipeline syntax dễ hiểu và dùng block "script{}" để load `Scripted Pipeline` khi cần chạy các function phức tạp ( từ Shared libraries https://www.jenkins.io/doc/book/pipeline/shared-libraries/#defining-shared-libraries ).
-
+    +  `Declarative pipeline` khai báo các stage để tận dụng function có sẵn, pipeline syntax dễ hiểu và dùng block "script{}" để load các function từ Shared libraries ( https://www.jenkins.io/doc/book/pipeline/shared-libraries/#defining-shared-libraries - đây là cách để implement `Scripted pipeline`).
+ 
 ### Jenkins-active-choices
 
   - Làm việc với Jenkins job yêu cầu truyền vào một params và phải dynamic thì plugin `Active Choices` cho phép bạn load một đoạn script để render các lựa chọn. 
