@@ -287,7 +287,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
     + Điểm khác nhau giữa hai loại pipeline có thể tham khảo ở đây: https://www.jenkins.io/doc/book/pipeline/
 
-- Tôi muốn implement Pipe line as code thì nên dùng loại nào ? 
+- Tôi muốn implement Pipe line as code thì nên dùng loại nào ?
 
   Ý kiến cá nhân:
     
