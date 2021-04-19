@@ -25,6 +25,9 @@ Technical notes
 * notes 01.12.2020
   * [jenkins-active-choices](#jenkins-active-choices)
 
+* notes 19.04.2020
+  * [ansible-windows](#ansible-windows)
+
 ## Prometheus và k8s
 
 #### Với mình lý do chính dùng prometheus là để tận dụng Service Discovery(SD) của nó.
@@ -330,3 +333,74 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
   - Plugin này có thể load mọi thứ bằng groovy - khá đơn giản nhưng mà hiệu quả.
   - Bạn cũng có thể đưa nó vào `groovy shared lib` cho gọn hơn.
+
+### ansible-windows
+
+  - Ansible là một agentless configuration management, giúp quản lý config trên cả windows và linux.
+  - Để ansible có thể thực thi được các kịch bản viết sẵn vào host thì chỉ cần một môi trường có thể chạy python.
+  - Trên linux chuyện đó khá dễ khi chỉ cần connect được vào ssh vào execute python, nhưng trên windows thì không đơn giản vậy.
+  - Trên windows có một component là Windows Remote Management (WinRM) giúp ansible có thể thực thi python.
+    + Winrm sẽ lấy url `/wsman` trên IIS để ansible connect bằng http/https.
+    + Port 3985 (non ssl) hoặc 3986 (ssl).
+  - Setting cần chạy để ansible có thể connect vào windows server 2016:
+  - #### Requirement :
+
+    - Winrm. ( https://docs.microsoft.com/vi-vn/azure/monitoring/infrastructure-health/vmhealth-windows/winserver-svc-winrm )
+    - Firewall for Winrm http - port 5985
+    - Enable remote shell & allow shell execution.
+    - Add trusted hosts to all (*)
+    - `Local` user with Administrator group for ansible to excute the shell (can't run with DOMAIN user)
+
+  - #### Run following script by shell (Run as Administrator)
+
+    ```
+        # setup windows hosts
+
+        $TLS12Protocol = [System.Net.SecurityProtocolType] 'Ssl3 , Tls12'
+        [System.Net.ServicePointManager]::SecurityProtocol = $TLS12Protocol
+
+        $url = "https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1"
+        $file = "$env:temp\ConfigureRemotingForAnsible.ps1"
+
+        (New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
+
+        powershell.exe -ExecutionPolicy ByPass -File $file
+
+        # windows allow to execute script
+
+        set-executionpolicy -executionpolicy remotesigned
+        winrm quickconfig -q
+        winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
+        winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+        winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+        winrm set winrm/config/service/auth '@{Basic="true"}'
+
+        # enable remoting shell
+
+        Enable-PSRemoting –Force
+  
+        # add all trusted host
+
+        Set-Item WSMan:\localhost\Client\TrustedHosts -Force -Value *
+
+        # allow firewall for winrm HTTP port
+
+        netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
+
+        # Create a user ansibe for playbook execution  (With Administrator permission). 
+
+        net user ansible your-pass-word /ADD /FULLNAME:"Ansible" /PASSWORDCHG:NO /EXPIRES:NEVER
+
+        net localgroup administrators ansible /add
+
+    ```
+  - Config Ansible :
+    ```
+      [all:vars]
+      ansible_user=ansible
+      ansible_password=your-pass-word
+      ansible_port=5985 #winrm (non-ssl) port
+      ansible_connection=winrm
+      ansible_winrm_transport=basic
+    ```
+  - Theo config ở trên thì ansible sẽ connect vào windows host và execute python ở url: `http://ip-host:3985/wsman`
