@@ -25,7 +25,7 @@ Technical notes
 * notes 01.12.2020
   * [jenkins-active-choices](#jenkins-active-choices)
 
-* notes 19.04.2020
+* notes 19.04.2021
   * [ansible-windows](#ansible-windows)
 
 ## Prometheus và k8s
