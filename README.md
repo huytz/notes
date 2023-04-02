@@ -391,7 +391,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
   
   ### notes 02.04.2023
   
-  #### Workload Identity trên GKE.
+  Workload Identity trên GKE.
     - Concept: https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
     - Khi làm việc với K8s trên các Cloud bạn sẽ cần đến việc dùng Serivce account của Cloud từ Application, và cách đuợc các Cloud Provider khuyên dùng là Workload Identiy (GCP) hay OIDC (AWS).
     - Ý tưởng chung của 2 khái niệm này đều là quản lý được Application k8s đang được bind vào service account nào của Cloud.
@@ -414,7 +414,8 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
         + Workload Identity của Google sẽ tiện hơn nếu bạn migrate Application giữa các cluster trong một Project vì bạn không cần làm gì trong việc sửa Workload Identity cả, chỉ cần dùng đúng service acccount và namespace.
         + OIDC của AWS lại an toàn hơn khi nó chia rõ ra từng cluster chứ không dùng chung một "pool" như Google.
         
-   #### K8s Service ExternalName
+  ### notes 02.04.2023 - K8s Service ExternalName
+  
       - K8s Service type ExternalName: https://kubernetes.io/docs/concepts/services-networking/service/#externalname
       - Use-case là khi mình muốn trỏ Backend của Kubernetes Ingress sang một Http server khác, bên ngoài cluster thì ExternalName là một giải pháp.
       - ```mermaid
