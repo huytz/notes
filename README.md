@@ -30,7 +30,7 @@ Technical notes
 
 * notes 02.04.2023
   * Workload Identity trên GKE.
-  * K8s ExternalName
+  * K8s Service ExternalName
 
 ## Prometheus và k8s
 
@@ -414,5 +414,41 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
         + Workload Identity của Google sẽ tiện hơn nếu bạn migrate Application giữa các cluster trong một Project vì bạn không cần làm gì trong việc sửa Workload Identity cả, chỉ cần dùng đúng service acccount và namespace.
         + OIDC của AWS lại an toàn hơn khi nó chia rõ ra từng cluster chứ không dùng chung một "pool" như Google.
         
-   #### K8s ExternalName
-  
+   #### K8s Service ExternalName
+      - K8s Service type ExternalName: https://kubernetes.io/docs/concepts/services-networking/service/#externalname
+      - Use-case là khi mình muốn trỏ Backend của Kubernetes Ingress sang một Http server khác, bên ngoài cluster thì ExternalName là một giải pháp.
+      - ```mermaid
+          graph TD;
+          Internet --> `example.com`;
+          `example.com`--> `Path /` ;
+          `example.com`--> `Path /devices`;
+          `Path /` --> A ;
+          `Path /devices` -> `External http server`;
+        ```
+      - Nhưng còn tuỳ thuộc vào endpoint `http server` đang là layer 4 hay layer 7:
+       - Nếu http server đang ở dạng layer 4 , thì không cần thêm actions gì nữa.
+       - Nhưng nếu http server đang ở Layer 7 Loadbanacer, thì sẽ có chút vấn đề ở đây: khi request đi từ Internet -> example.com thì trong Http request sẽ có header `Host: example.com` , và khi foward request sang external http server với domain khác ví dụ `x.com` thì request đó sẽ failed vì không có `Host: example.com` không có ở config trên proxy Layer 7.
+       - Giải pháp ở đây là chỉ cần Http server `x.com` listen thêm domain `example.com`, bạn có thể tạo thêm 1 domain ở Http server.
+       - Trong case của mình, `x.com` chạy trên K8s và dùng Kong Ingress Controller, nên việc này khá đơn giản, chỉ cần dùng `hostAlias` của KIC.
+        ```
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: ingress-x
+          annotations:
+            konghq.com/host-aliases: "example.com"
+          spec:
+        ingressClassName: gateway
+        rules:
+        - host: x.com
+          http:
+            paths:
+            - backend:
+                service:
+                  name: x
+                  port:
+                    number: 8080
+              path: /
+              pathType: Prefix
+        ```
+        
