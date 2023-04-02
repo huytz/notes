@@ -28,6 +28,10 @@ Technical notes
 * notes 19.04.2021
   * [ansible-windows](#ansible-windows)
 
+* notes 02.04.2023
+  * Workload Identity trên GKE.
+  * K8s ExternalName
+
 ## Prometheus và k8s
 
 #### Với mình lý do chính dùng prometheus là để tận dụng Service Discovery(SD) của nó.
@@ -257,26 +261,6 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
 
 - link part one: https://www.redhat.com/sysadmin/cgroups-part-one
 
-### Linh tinh
-
-- Nhân tiện Apple mới ra Iphone 12, các forums lại được dịp tranh cãi IOS vs Android, về công nghệ, giá cả bla bla... nhưng mình vẫn thích ai dùng hàng nấy thôi đừng nên dạy người khác cách tiêu tiền, tranh cãi mấy thứ đó trên mạng quá vô bổ.
-
-- Lại nhớ cái clip khá hay của Steve Jobs lúc còn trẻ nói về thất bại của Xerox, đại khái là: 
-
-  + Những người làm sản phẩm , gọi nôm na là "product people" giúp công ty tạo ra một sản phẩm tốt và hiểu rõ nhu cầu của người dùng, biết người dùng cần gì, luôn mang đến người dùng những thứ họ cần.
-
-  + Khi công ty đã độc chiếm thị trường và không có đối thủ, thì những "product people" này thường không mang lại lợi ích nhiều cho công ty nữa, thay vào đó là những Sales, Marketing people.
-
-  + Với Pepsico thì có thể là ổn, nhưng đối với những công ty công nghệ thì sao ? 
-
-  + Tại sao chúng ta phải tạo ra một cái máy in tốt hơn khi mà chúng ta đã độc chiếm thị trường.
-
-  + Các Sales, Marketing mang lại lợi nhuận lớn và dần lên nắm quyền điều hành (người sẽ không phân biệt được một good/bad product , không hiểu được ngừoi dùng cần gì mà chỉ quan tâm đến việc bán được thật nhiều sản phẩm ), các cổ đông lại thích điều đó.
-
-  + "Product people" không còn được quyết định nhiều đến sản phẩm họ làm ra sẽ như thế nào nữa.
-
-- link: https://www.youtube.com/watch?v=X3NASGb5m8s
-
 
 ### jenkins-pipeline
 
@@ -404,3 +388,31 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
       ansible_winrm_transport=basic
     ```
   - Theo config ở trên thì ansible sẽ connect vào windows host và execute python ở url: `http://ip-host:3985/wsman`
+  
+  ### notes 02.04.2023
+  
+  #### Workload Identity trên GKE.
+    - Concept: https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
+    - Khi làm việc với K8s trên các Cloud bạn sẽ cần đến việc dùng Serivce account của Cloud từ Application, và cách đuợc các Cloud Provider khuyên dùng là Workload Identiy (GCP) hay OIDC (AWS).
+    - Ý tưởng chung của 2 khái niệm này đều là quản lý được Application k8s đang được bind vào service account nào của Cloud.
+    - Flow : Application <-> k8s servie account <-> binding <-> Cloud Service Account.
+    - Tuy nhiên ở mỗi Cloud sẽ có design khác nhau ở việc binding này.
+      - Ở GKE (Google Kubernetes Engine), khi bạn bật tính năng Workload Identity trên 1 cluster thì GCP sẽ tự động tạo một pool gọi là `workload identity pool` , với một tên mặc định là `PROJECT_ID.svc.id.goog`.
+      - Nghĩa là dù bạn tạo bao nhiêu cluster trong một Project thì tất cả các cluster này đều dùng 1 pool lên là `PROJECT_ID.svc.id.goog`.
+      - Ví dụ với 1 trường hợp cụ thể, mình có một cluster A với Service Account A' đã dùng workload identity và có quyền upload ảnh lên Google Object Storage X.
+      - Sau đó mình tạo một Cluster B với các tham số:
+          + Enable Worload Identity
+          + Tạo một serice account A'.
+      - Thì dĩ nhiên Application ở cluster B chỉ cần dùng đúng service account A' (giống namespace) thì có thể upload ảnh lên  Google Object Storage X mà không cần làm thêm actions gì.
+      - Và ngay trong tài liệu của WI của Google đã nói: 
+          + You can't change the name of the workload identity pool that GKE creates for your Google Cloud project.
+          + To avoid untrusted access, place your clusters in separate projects to ensure that they get different workload identity pools, or ensure that the namespace names are distinct from each other to avoid a common member name.
+
+      - Hãy xem một chút về cách hoạt động của AWS Open ID connect (OIDC) , có đề câp: Your cluster has an OpenID Connect (OIDC) issuer URL associated with it -> Nghĩa là mỗi Cluster sẽ dùng một ID riêng, chứ không dùng dung 1 pool như GCP.
+      
+      - Kết luận: Mỗi Cloud Provider có cách thiết kế khác nhau và tuỳ vào sự lựa chọn của người thiết kế:
+        + Workload Identity của Google sẽ tiện hơn nếu bạn migrate Application giữa các cluster trong một Project vì bạn không cần làm gì trong việc sửa Workload Identity cả, chỉ cần dùng đúng service acccount và namespace.
+        + OIDC của AWS lại an toàn hơn khi nó chia rõ ra từng cluster chứ không dùng chung một "pool" như Google.
+        
+   #### K8s ExternalName
+  
