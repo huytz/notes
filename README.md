@@ -389,48 +389,46 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
     ```
   - Theo config ở trên thì ansible sẽ connect vào windows host và execute python ở url: `http://ip-host:3985/wsman`
   
-  ### notes 02.04.2023
-  
-  Workload Identity trên GKE.
-    - Concept: https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
-    - Khi làm việc với K8s trên các Cloud bạn sẽ cần đến việc dùng Serivce account của Cloud từ Application, và cách đuợc các Cloud Provider khuyên dùng là Workload Identiy (GCP) hay OIDC (AWS).
-    - Ý tưởng chung của 2 khái niệm này đều là quản lý được Application k8s đang được bind vào service account nào của Cloud.
-    - Flow : Application <-> k8s servie account <-> binding <-> Cloud Service Account.
-    - Tuy nhiên ở mỗi Cloud sẽ có design khác nhau ở việc binding này.
+  ### notes 02.04.2023 - Workload Identity trên GKE.
+  - Concept: https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
+  - Khi làm việc với K8s trên các Cloud bạn sẽ cần đến việc dùng Serivce account của Cloud từ Application, và cách đuợc các Cloud Provider khuyên dùng là Workload Identiy (GCP) hay OIDC (AWS).
+  - Ý tưởng chung của 2 khái niệm này đều là quản lý được Application k8s đang được bind vào service account nào của Cloud.
+  - Flow : Application <-> k8s servie account <-> binding <-> Cloud Service Account.
+  - Tuy nhiên ở mỗi Cloud sẽ có design khác nhau ở việc binding này.
       - Ở GKE (Google Kubernetes Engine), khi bạn bật tính năng Workload Identity trên 1 cluster thì GCP sẽ tự động tạo một pool gọi là `workload identity pool` , với một tên mặc định là `PROJECT_ID.svc.id.goog`.
       - Nghĩa là dù bạn tạo bao nhiêu cluster trong một Project thì tất cả các cluster này đều dùng 1 pool lên là `PROJECT_ID.svc.id.goog`.
       - Ví dụ với 1 trường hợp cụ thể, mình có một cluster A với Service Account A' đã dùng workload identity và có quyền upload ảnh lên Google Object Storage X.
-      - Sau đó mình tạo một Cluster B với các tham số:
+   - Sau đó mình tạo một Cluster B với các tham số:
           + Enable Worload Identity
           + Tạo một serice account A'.
-      - Thì dĩ nhiên Application ở cluster B chỉ cần dùng đúng service account A' (giống namespace) thì có thể upload ảnh lên  Google Object Storage X mà không cần làm thêm actions gì.
-      - Và ngay trong tài liệu của WI của Google đã nói: 
+   - Thì dĩ nhiên Application ở cluster B chỉ cần dùng đúng service account A' (giống namespace) thì có thể upload ảnh lên  Google Object Storage X mà không cần làm thêm actions gì.
+   - Và ngay trong tài liệu của WI của Google đã nói: 
           + You can't change the name of the workload identity pool that GKE creates for your Google Cloud project.
           + To avoid untrusted access, place your clusters in separate projects to ensure that they get different workload identity pools, or ensure that the namespace names are distinct from each other to avoid a common member name.
 
-      - Hãy xem một chút về cách hoạt động của AWS Open ID connect (OIDC) , có đề câp: Your cluster has an OpenID Connect (OIDC) issuer URL associated with it -> Nghĩa là mỗi Cluster sẽ dùng một ID riêng, chứ không dùng dung 1 pool như GCP.
+   - Hãy xem một chút về cách hoạt động của AWS Open ID connect (OIDC) , có đề câp: Your cluster has an OpenID Connect (OIDC) issuer URL associated with it -> Nghĩa là mỗi Cluster sẽ dùng một ID riêng, chứ không dùng dung 1 pool như GCP.
       
-      - Kết luận: Mỗi Cloud Provider có cách thiết kế khác nhau và tuỳ vào sự lựa chọn của người thiết kế:
+   - Kết luận: Mỗi Cloud Provider có cách thiết kế khác nhau và tuỳ vào sự lựa chọn của người thiết kế:
         + Workload Identity của Google sẽ tiện hơn nếu bạn migrate Application giữa các cluster trong một Project vì bạn không cần làm gì trong việc sửa Workload Identity cả, chỉ cần dùng đúng service acccount và namespace.
         + OIDC của AWS lại an toàn hơn khi nó chia rõ ra từng cluster chứ không dùng chung một "pool" như Google.
         
   ### notes 02.04.2023 - K8s Service ExternalName
   
-      - K8s Service type ExternalName: https://kubernetes.io/docs/concepts/services-networking/service/#externalname
-      - Use-case là khi mình muốn trỏ Backend của Kubernetes Ingress sang một Http server khác, bên ngoài cluster thì ExternalName là một giải pháp.
-      - ```mermaid
+  - K8s Service type ExternalName: https://kubernetes.io/docs/concepts/services-networking/service/#externalname
+  - Use-case là khi mình muốn trỏ Backend của Kubernetes Ingress sang một Http server khác, bên ngoài cluster thì ExternalName là một giải pháp.
+  - ```mermaid
           graph TD;
           Internet --> `example.com`;
           `example.com`--> `Path /` ;
           `example.com`--> `Path /devices`;
           `Path /` --> A ;
           `Path /devices` -> `External http server`;
-        ```
-      - Nhưng còn tuỳ thuộc vào endpoint `http server` đang là layer 4 hay layer 7:
-       - Nếu http server đang ở dạng layer 4 , thì không cần thêm actions gì nữa.
-       - Nhưng nếu http server đang ở Layer 7 Loadbanacer, thì sẽ có chút vấn đề ở đây: khi request đi từ Internet -> example.com thì trong Http request sẽ có header `Host: example.com` , và khi foward request sang external http server với domain khác ví dụ `x.com` thì request đó sẽ failed vì không có `Host: example.com` không có ở config trên proxy Layer 7.
-       - Giải pháp ở đây là chỉ cần Http server `x.com` listen thêm domain `example.com`, bạn có thể tạo thêm 1 domain ở Http server.
-       - Trong case của mình, `x.com` chạy trên K8s và dùng Kong Ingress Controller, nên việc này khá đơn giản, chỉ cần dùng `hostAlias` của KIC.
+     ```
+   - Nhưng còn tuỳ thuộc vào endpoint `http server` đang là layer 4 hay layer 7:
+   - Nếu http server đang ở dạng layer 4 , thì không cần thêm actions gì nữa.
+   - Nhưng nếu http server đang ở Layer 7 Loadbanacer, thì sẽ có chút vấn đề ở đây: khi request đi từ Internet -> example.com thì trong Http request sẽ có header `Host: example.com` , và khi foward request sang external http server với domain khác ví dụ `x.com` thì request đó sẽ failed vì không có `Host: example.com` không có ở config trên proxy Layer 7.
+   - Giải pháp ở đây là chỉ cần Http server `x.com` listen thêm domain `example.com`, bạn có thể tạo thêm 1 domain ở Http server.
+   - Trong case của mình, `x.com` chạy trên K8s và dùng Kong Ingress Controller, nên việc này khá đơn giản, chỉ cần dùng `hostAlias` của KIC.
         ```
         apiVersion: networking.k8s.io/v1
         kind: Ingress
@@ -452,4 +450,3 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
               path: /
               pathType: Prefix
         ```
-        
