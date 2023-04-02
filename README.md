@@ -418,11 +418,11 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
   - Use-case là khi mình muốn trỏ Backend của Kubernetes Ingress sang một Http server khác, bên ngoài cluster thì ExternalName là một giải pháp.
   - ```mermaid
           graph TD;
-          Internet --> `example.com`;
-          `example.com`--> `Path /` ;
-          `example.com`--> `Path /devices`;
-          `Path /` --> A ;
-          `Path /devices` -> `External http server`;
+          Internet --> example;
+          example --> / ;
+          example --> devices;
+          / --> A ;
+          devices -> External http server ;
      ```
    - Nhưng còn tuỳ thuộc vào endpoint `http server` đang là layer 4 hay layer 7:
    - Nếu http server đang ở dạng layer 4 , thì không cần thêm actions gì nữa.
