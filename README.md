@@ -403,8 +403,8 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
           + Tạo một serice account A'.
    - Thì dĩ nhiên Application ở cluster B chỉ cần dùng đúng service account A' (giống namespace) thì có thể upload ảnh lên  Google Object Storage X mà không cần làm thêm actions gì.
    - Và ngay trong tài liệu của WI của Google đã nói: 
-          + You can't change the name of the workload identity pool that GKE creates for your Google Cloud project.
-          + To avoid untrusted access, place your clusters in separate projects to ensure that they get different workload identity pools, or ensure that the namespace names are distinct from each other to avoid a common member name.
+       + You can't change the name of the workload identity pool that GKE creates for your Google Cloud project.
+       + To avoid untrusted access, place your clusters in separate projects to ensure that they get different workload identity pools, or ensure that the namespace names are distinct from each other to avoid a common member name.
 
    - Hãy xem một chút về cách hoạt động của AWS Open ID connect (OIDC) , có đề câp: Your cluster has an OpenID Connect (OIDC) issuer URL associated with it -> Nghĩa là mỗi Cluster sẽ dùng một ID riêng, chứ không dùng dung 1 pool như GCP.
       
