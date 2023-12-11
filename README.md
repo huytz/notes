@@ -421,7 +421,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
   - Nhưng nếu http server đang ở Layer 7 Loadbanacer, thì sẽ có chút vấn đề ở đây: khi request đi từ Internet -> example.com thì trong Http request sẽ có header `Host: example.com` , và khi foward request sang external http server với domain khác ví dụ `x.com` thì request đó sẽ failed vì không có `Host: example.com` không có ở config trên proxy Layer 7.
   - Giải pháp ở đây là chỉ cần Http server `x.com` listen thêm domain `example.com`, bạn có thể tạo thêm 1 domain ở Http server.
   - Trong case của mình, `x.com` chạy trên K8s và dùng Kong Ingress Controller, nên việc này khá đơn giản, chỉ cần dùng `hostAlias` của KIC.
-        ```
+      ```
         apiVersion: networking.k8s.io/v1
         kind: Ingress
         metadata:
@@ -441,4 +441,4 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
                     number: 8080
               path: /
               pathType: Prefix
-        ```
+      ```
