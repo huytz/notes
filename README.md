@@ -29,8 +29,8 @@ Technical notes
   * [ansible-windows](#ansible-windows)
 
 * notes 02.04.2023
-  * [workload-identity](#notes-02.04.2023-i)
-  * [k8s-externalname](#notes-02.04.2023-ii)
+  * [workload-identity](#workload-identity)
+  * [k8s-externalname](#k8s-externalname)
 
 * Tự thiết kế Apps
   * [01](#01)
@@ -392,7 +392,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
     ```
   - Theo config ở trên thì ansible sẽ connect vào windows host và execute python ở url: `http://ip-host:3985/wsman`
   
-  ### notes-02.04.2023-i
+  ### workload-identity
   - Workload Identity trên GKE.
   - Concept: https://cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
   - Khi làm việc với K8s trên các Cloud bạn sẽ cần đến việc dùng Serivce account của Cloud từ Application, và cách đuợc các Cloud Provider khuyên dùng là Workload Identiy (GCP) hay OIDC (AWS).
@@ -416,7 +416,7 @@ Ref: https://github.com/VictoriaMetrics/VictoriaMetrics/wiki/CaseStudies#adidas
         + Workload Identity của Google sẽ tiện hơn nếu bạn migrate Application giữa các cluster trong một Project vì bạn không cần làm gì trong việc sửa Workload Identity cả, chỉ cần dùng đúng service acccount và namespace.
         + OIDC của AWS lại an toàn hơn khi nó chia rõ ra từng cluster chứ không dùng chung một "pool" như Google.
         
-  ### notes-02.04.2023-ii
+  ### k8s-externalname
   - K8s Service ExternalName
   - K8s Service type ExternalName: https://kubernetes.io/docs/concepts/services-networking/service/#externalname
   - Use-case là khi mình muốn trỏ Backend của Kubernetes Ingress sang một Http server khác, bên ngoài cluster thì ExternalName là một giải pháp.
